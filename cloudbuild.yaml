@@ -1,0 +1,47 @@
+steps:
+  # Clone the GitHub repository
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/Nuvalence/spring-music.git']
+    dir: '/workspace'
+
+  # Run Maven build without tests
+  - name: 'maven:3.6.0-jdk-11-slim'
+    args: ['mvn', 'clean', 'install', '-DskipTests']
+    dir: '/workspace/spring-music'
+
+  # Run Maven tests
+  - name: 'maven:3.6.0-jdk-11-slim'
+    args: ['mvn', 'test']
+    dir: '/workspace/spring-music'
+    id: 'run-tests'
+
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/cloudbridge-dev-402414/development/spring-music:$SHORT_SHA', '.']
+    dir: '/workspace/spring-music'
+    id: 'build-docker-image'
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/cloudbridge-dev-402414/development/spring-music:$SHORT_SHA']
+    id: 'push-docker-image'
+
+  # Deploy to GKE
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args: ['run', '--image=us-central1-docker.pkg.dev/cloudbridge-dev-402414/development/spring-music:$SHORT_SHA', '--location=us-central1', '--cluster=jcsm-cluster-1']
+    id: 'deploy-to-gke'
+
+# List of images to be pushed to Artifact Registry
+images:
+  - 'us-central1-docker.pkg.dev/cloudbridge-dev-402414/development/spring-music:$SHORT_SHA'
+
+# Build timeout setting
+timeout: '1600s'
+
+# Machine type and environment variables for the build
+options:
+  machineType: 'N1_HIGHCPU_8'
+  diskSizeGb: '100'
+  env:
+    - 'CLOUDSDK_COMPUTE_REGION=us-central1'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=jcsm-cluster-1'
