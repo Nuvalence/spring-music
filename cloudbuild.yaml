@@ -4,14 +4,14 @@ steps:
     args: ['clone', 'https://github.com/Nuvalence/spring-music.git']
     dir: '/workspace'
 
-  # Run Maven build without tests
-  - name: 'maven:3.6.0-jdk-11-slim'
-    args: ['mvn', 'clean', 'install', '-DskipTests']
+  # Run Gradle build without tests
+  - name: 'gradle:6.7.1-jdk11'
+    args: ['gradle', 'clean', 'build', '-x', 'test']
     dir: '/workspace/spring-music'
 
-  # Run Maven tests
-  - name: 'maven:3.6.0-jdk-11-slim'
-    args: ['mvn', 'test']
+  # Run Gradle tests
+  - name: 'gradle:6.7.1-jdk11'
+    args: ['gradle', 'test']
     dir: '/workspace/spring-music'
     id: 'run-tests'
 
