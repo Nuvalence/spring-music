@@ -4,13 +4,13 @@ steps:
     args: ['clone', 'https://github.com/Nuvalence/spring-music.git']
     dir: '/workspace'
 
-  # Run Gradle build without tests
-  - name: 'gradle:6.7.1-jdk11'
+  # Run Gradle build without tests using JDK 17
+  - name: 'gradle:7.4.1-jdk17'
     args: ['gradle', 'clean', 'build', '-x', 'test']
     dir: '/workspace/spring-music'
 
-  # Run Gradle tests
-  - name: 'gradle:6.7.1-jdk11'
+  # Run Gradle tests using JDK 17
+  - name: 'gradle:7.4.1-jdk17'
     args: ['gradle', 'test']
     dir: '/workspace/spring-music'
     id: 'run-tests'
